@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--Order createOrder(Cart cart);-->
+<mapper namespace="com.hui.xiaomi.dao.OrderMapper">
+    <insert id="createOrder" >
+        insert into `order`(order_id, goods_name, goods_price, cart_num,order_time,order_money,customer_id,goods_id)
+        VALUES(#{orderId},#{cart.goodsName},#{cart.goodsPrice},#{cart.cartNum},#{orderTime},#{orderMoney},#{cart.customerId},#{cart.goodsId})
+    </insert>
+    <!--List<Order> selectAllOrders();-->
+    <resultMap id="OrderMap" type="order">
+        <result column="order_id" property="order_id"></result>
+        <result column="goods_name" property="goodsName"></result>
+        <result column="goods_price" property="goodsPrice"></result>
+        <result column="cart_num" property="cartNum"></result>
+        <result column="order_time" property="orderTime"></result>
+        <result column="order_money" property="orderMoney"></result>
+        <result column="customer_id" property="customerId"></result>
+        <result column="goods_id" property="goodsId"></result>
+    </resultMap>
+    <sql id="allOrder">
+        order_money,order_id,goods_name,goods_price,cart_num,order_time,customer_id,goods_id
+    </sql>
+    <select id="selectAllOrdersById" parameterType="int" resultMap="OrderMap">
+        select <include refid="allOrder"></include>
+        from `order` where customer_id=#{customerId}
+    </select>
+    <!--int deleteBatchOrders(String[] orderId) ;批量删除订单-->
+    <delete id="deleteBatchOrders" parameterType="string">
+        delete from `order` where order_id in
+        <foreach collection="array" separator="," item="orderId" open="(" close=")">
+            #{orderId}
+        </foreach>
+    </delete>
+    <!--List<Order> selectAllOrders();-->
+    <select id="selectAllOrders" resultMap="OrderMap">
+        select <include refid="allOrder"></include>
+        from `order`
+    </select>
+    <!--List<Order> selectAllOrdersPageList(Integer customerId);对具体用户的订单进行分页-->
+    <select id="selectAllOrdersPageList" parameterType="int" resultMap="OrderMap">
+        select <include refid="allOrder"></include>
+        from `order` where customer_id=#{customerId}
+</select>
+</mapper>

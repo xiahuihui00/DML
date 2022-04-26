@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--List<Goods> selectAllGoods();-->
+<mapper namespace="com.hui.xiaomi.dao.GoodMapper">
+    <sql id="allColumnsGoods">
+        goods_id,goods_name,goods_price,goods_number,goods_info
+    </sql>
+    <sql id="unlessColumnsId"></sql>
+    <resultMap id="goodsMap" type="goods">
+        <id column="goods_id" property="goodsId"></id>
+        <result column="goods_name" property="goodsName"></result>
+        <result column="goods_price" property="goodsPrice"></result>
+        <result column="goods_number" property="goodsNumber"></result>
+        <result column="goods_info" property="goodsInfo"></result>
+    </resultMap>
+    <select id="selectAllGoods" resultMap="goodsMap">
+        select <include refid="allColumnsGoods"></include>
+        from goods
+    </select>
+    <!-- int insertGoods(Goods goods);-->
+    <insert id="insertGoods" parameterType="com.hui.xiaomi.pojo.Goods">
+        insert into goods(<include refid="unlessColumnsId"></include>)
+        values (#{goodsId},#{goodsName},#{goodsPrice},#{goodsNumber},#{goodsInfo})
+    </insert>
+    <!--int deleteGoods(Integer goodsId);-->
+    <delete id="deleteGoods" parameterType="int">
+        delete from goods where goods_id=#{goodId}
+    </delete>
+    <!--int updateGoods(Goods goods);-->
+    <update id="updateGoods" parameterType="com.hui.xiaomi.pojo.Goods">
+        update goods set goods_id=#{goodsId},goods_name=#{goodsName},goods_price=#{goodsPrice},
+                         goods_number=#{goodsNumber},goods_info=#{goodsInfo}
+        where goods_id=#{goodsId}
+    </update>
+    <!--   List<Goods> selectGoodsByLike(@Param("columns") String columns,@Param("filed") String filed);-->
+    <select id="selectGoodsByLike" resultMap="goodsMap">
+        select <include refid="allColumnsGoods"></include>
+        from goods
+        where ${columns} like concat('%',#{filed},'%')
+    </select>
+    <!--List<Goods> selectGoodsKeyword(String keyword);-->
+    <!--对一个关键词进行所有字段的模糊查询-->
+    <select id="selectGoodsKeyword" parameterType="string" resultMap="goodsMap">
+        select <include refid="allColumnsGoods"></include>
+        from goods
+        <where>
+            <if test="keyword!=null and keyword!=''">
+                concat(<include refid="allColumnsGoods"></include>) like concat('%',#{keyword},'%')
+                order by goods_price desc
+            </if>
+        </where>
+    </select>
+    <!--List<Goods> selectGoodsByPrice(Map map);-->
+    <select id="selectGoodsByPrice" parameterType="map" resultMap="goodsMap">
+        select <include refid="allColumnsGoods"></include>
+        from goods where goods_price between #{beginPrice} and #{endPrice}
+    </select>
+    <!-- int insertBatchGoods(List<Goods> list);-->
+    <!--list集合实现批量增加-->
+    <insert id="insertBatchGoods" parameterType="com.hui.xiaomi.pojo.Goods">
+        insert into goods(goods_name,goods_price,goods_number,goods_info) values 
+        <foreach collection="list" separator="," item="goods">
+            (#{goods.goodsName},#{goods.goodsPrice},#{goods.goodsNumber},#{goods.goodsInfo})
+        </foreach>
+    </insert>
+    <!--List<Goods> selectBatchGoods(Arrays arrays);根据商品id批量查询-->
+    <select id="selectBatchGoods" resultMap="goodsMap">
+        select <include refid="allColumnsGoods"></include>
+               from goods where goods_id in
+        <foreach collection="array" item="good" open="(" close=")" separator=",">
+            #{good}
+        </foreach>
+    </select>
+    <!--int deleteBatchGoods(Integer[] goodsId);-->
+    <delete id="deleteBatchGoods" parameterType="int">
+        delete from goods
+        where goods_id in
+        <foreach collection="array" item="goodsId" open="(" close=")" separator=",">
+            #{goodsId}
+        </foreach>
+    </delete>
+    <!--int updatePartGoods(Goods good);对商品部分更新-->
+    <update id="updatePartGoods" parameterType="goods">
+        update goods
+        <set>
+            <if test="goodsName!=null and goodsName!=''">
+                goods_name=#{goodsName},
+            </if>
+            <if test="goodsPrice!=null and goodsPrice!=''">
+                goods_price=#{goodsPrice},
+            </if>
+            <if test="goodsNumber!=null and goodsNumber!=''">
+                goods_number=#{goodsNumber},
+            </if>
+            <if test="goodsInfo!=null and goodsInfo!=''">
+                goods_info=#{goodsInfo}
+            </if>
+        </set>
+        where goods_id=#{goodsId}
+    </update>
+    <!--Goods selectGoodsInfo(Integer goodsId);商品详情-->
+    <select id="selectGoodsInfo" parameterType="int" resultMap="goodsMap">
+        select <include refid="allColumnsGoods"></include>
+        from goods
+        where goods_id=#{goodsId}
+    </select>
+    <!--List<Goods> selectAllGoodsPage();-->
+    <select id="selectAllGoodsPage" resultMap="goodsMap">
+        select <include refid="allColumnsGoods"></include>
+        from goods
+    </select>
+</mapper>

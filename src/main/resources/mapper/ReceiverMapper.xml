@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--List<Receiver> selectReceiverById(Integer receiverId);根据收件人id查询收货人信息
+    private Integer receiverId;
+    private String receiverName;
+    private Integer receiverTel;
+    private String receiverAddress;
+-->
+<mapper namespace="com.hui.xiaomi.dao.ReceiverMapper">
+    <resultMap id="receiverMap" type="receiver">
+        <id column="receiver_id" property="receiverId"></id>
+        <result column="receiver_name" property="receiverName"></result>
+        <result column="receiver_tel" property="receiverTel"></result>
+        <result column="receiver_address" property="receiverAddress"></result>
+    </resultMap>
+    <sql id="allReceiverColumns">
+        receiver_address,receiver_id,receiver_name,receiver_tel
+    </sql>
+    <select id="selectReceiverById" parameterType="int" resultMap="receiverMap">
+        select <include refid="allReceiverColumns"></include>
+        from receiver where receiver_id=#{receiverId}
+    </select>
+    <!--int insertReceiverInfo(Receiver receiver);添加用户信息-->
+    <insert id="insertReceiverInfo" parameterType="com.hui.xiaomi.pojo.Receiver">
+        insert into receiver(receiver_name, receiver_tel, receiver_address)
+        values (#{receiverName},#{receiverTel},#{receiverAddress})
+    </insert>
+    <!--int deleteBatchReceiver(Integer[] receiverId);批量删除收货人信息-->
+    <delete id="deleteBatchReceiver" >
+        delete  from receiver where receiver_id in
+        <foreach collection="array" item="receiverId" close=")" open="(" separator=",">
+            #{receiverId}
+        </foreach>
+    </delete>
+    <!--int updatePartReceiver(Receiver receiver);修改收货人信息-->
+    <update id="updatePartReceiver" parameterType="com.hui.xiaomi.pojo.Receiver">
+        update receiver
+        <set>
+            <if test="receiverName!=null and receiverName!=''">
+                receiver_name=#{receiverName},
+            </if>
+            <if test="receiverTel!=null and receiverTel!=''">
+                receiver_tel=#{receiverTel},
+            </if>
+            <if test="receiverAddress!=null and receiverAddress!=''">
+                receiver_address=#{receiverAddress}
+            </if>
+        </set>
+        where receiver_id=#{receiverId}
+    </update>
+    <!--List<Receiver> selectReceiverPageList();对收件人信息进行分页-->
+    <select id="selectReceiverPageList" resultMap="receiverMap">
+        select <include refid="allReceiverColumns"></include>
+        from receiver
+    </select>
+</mapper>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--List<Cart> selectCartGoods();
+     private Integer cartId;
+    private Integer cartNum;
+    private List<Goods> goods;
+-->
+<mapper namespace="com.hui.xiaomi.dao.CartMapper">
+    <resultMap id="cartMap" type="cart">
+        <id column="cart_id" property="cartId"></id>
+        <result column="cart_num" property="cartNum"></result>
+        <result column="goods_name" property="goodsName"></result>
+        <result column="goods_price" property="goodsPrice"></result>
+        <result column="goods_info" property="goodsInfo"></result>
+        <result column="goods_id" property="goodsId"></result>
+        <result column="customer_id" property="customerId"></result>
+    </resultMap>
+    <sql id="allCartColumns">
+        cart_id,goods_id,cart_num,goods_name,goods_price,goods_info,customer_id
+    </sql>
+    <select id="selectCartGoods" resultMap="cartMap">
+        select <include refid="allCartColumns"></include>
+        from cart
+    </select>
+    <!--int joinCartGoods(Integer cartNum, Goods goods);-->
+    <insert id="joinCartGoods">
+        insert into cart(Goods_id,cart_num,goods_name,goods_price,goods_info,customer_id)
+        values (#{goods.goodsId},#{cartNum},#{goods.goodsName},#{goods.goodsPrice},#{goods.goodsInfo},#{customerId})
+    </insert>
+    <!--int updateCartGoodsNum(@Param("cartNum") Integer cartNum,@Param("goods") Goods goods);-->
+    <update id="updateCartGoodsNum" parameterType="int">
+        update cart set cart_num=#{cartNum} where goods_id=#{goods.goodsId} and customer_id =#{customerId}
+    </update>
+    <!--int deleteBatchCartGoods(Integer[] cartId);-->
+    <delete id="deleteBatchCartGoods">
+        delete from cart where cart_id in
+        <foreach collection="array" item="cartId" open="(" close=")" separator=",">
+            #{cartId}
+        </foreach>
+    </delete>
+    <!--List<Cart> selectCartGoodsById(Integer customerId);-->
+    <select id="selectCartGoodsById" parameterType="int" resultMap="cartMap">
+        select <include refid="allCartColumns"></include>
+        from cart where customer_id=#{customerId}
+    </select>
+    <!--List<Cart> selectCartGoodsPageList(Integer customerId);对指定用户的购物车进行分页-->
+    <select id="selectCartGoodsPageList" resultMap="cartMap" parameterType="int">
+        select <include refid="allCartColumns"></include>
+        from cart where customer_id=#{customerId}
+    </select>
+</mapper>

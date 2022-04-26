@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--Customer selectCustomer(String username, String password);
+     private Integer customerId;
+    private String userName;
+    private String password;
+-->
+<mapper namespace="com.hui.xiaomi.dao.CustomerMapper">
+    <sql id="allCustomerColumns">
+        customer_id,customer_username,customer_password
+    </sql>
+    <resultMap id="customerMapper" type="customer">
+        <id column="customer_id" property="customerId"></id>
+        <result column="customer_username" property="userName"></result>
+        <result column="customer_password" property="password"></result>
+    </resultMap>
+    <select id="selectCustomer" resultMap="customerMapper">
+        select <include refid="allCustomerColumns"></include>
+        from customer
+        where customer_username=#{userName} and customer_password=#{password}
+    </select>
+    <!--int insertCustomer(Customer customer);-->
+    <insert id="insertCustomer" parameterType="com.hui.xiaomi.pojo.Customer">
+        insert into customer(customer_username,customer_password) values (#{userName},#{password})
+    </insert>
+    <!--List<Customer> selectAllCustomer();-->
+    <select id="selectAllCustomer" resultMap="customerMapper">
+        select <include refid="allCustomerColumns"></include>
+        from customer
+    </select>
+    <!--int deleteBatchCustomer(Integer[] customerId);-->
+    <delete id="deleteBatchCustomer" >
+        delete from customer where customer_id in
+        <foreach collection="array" item="customerId" open="(" close=")" separator=",">
+            #{customerId}
+        </foreach>
+    </delete>
+    <!--int updateCustomerPwd(Customer customer);修改密码-->
+    <update id="updateCustomerPwd" parameterType="com.hui.xiaomi.pojo.Customer">
+        update customer set customer_password=#{password} where customer_id = #{customerId}
+    </update>
+</mapper>
